@@ -1,116 +1,59 @@
 # Platypus AI — Cloudflare Worker
-
-Secure API proxy for Platypus AI. Keeps all OpenRouter keys server-side
-so they are never exposed in browser source code.
-
-## Files
-
-| File | Purpose |
-|------|---------|
-| `worker.js` | The Cloudflare Worker (deploy this) |
-| `wrangler.toml` | Worker config |
-| `script.patch.js` | Drop-in replacement for `sendMessageToAI` in your frontend |
+**URL:** https://noisy-breeze-a4b2.detlaffcameron.workers.dev
 
 ---
 
-## Deploy in 4 steps
+## Step 1 — Paste the worker code
 
-### 1. Install Wrangler
-
-```bash
-npm install -g wrangler
-wrangler login
-```
-
-### 2. Set your API key secrets
-
-You can use one key per provider (recommended) or a single shared key.
-
-**One key per provider:**
-```bash
-wrangler secret put OPENROUTER_KEY_OPENAI
-wrangler secret put OPENROUTER_KEY_DEEPSEEK
-wrangler secret put OPENROUTER_KEY_ZHIPU
-wrangler secret put OPENROUTER_KEY_XAI
-wrangler secret put OPENROUTER_KEY_GOOGLE
-wrangler secret put OPENROUTER_KEY_ALIBABA
-```
-
-**Or a single fallback key for all providers:**
-```bash
-wrangler secret put OPENROUTER_KEY_DEFAULT
-```
-
-Wrangler will prompt you to paste each key securely.
-
-### 3. Deploy
-
-```bash
-cd platypus-worker
-wrangler deploy
-```
-
-Wrangler prints your worker URL:
-```
-https://platypus-ai.<your-subdomain>.workers.dev
-```
-
-### 4. Update the frontend
-
-In `script.js`:
-
-1. **Delete all `keyPool: [...]` entries** from the `MODELS` array.
-2. **Delete the `getNextKey` function.**
-3. **Replace `sendMessageToAI`** with the version in `script.patch.js`.
-4. **Set `WORKER_BASE_URL`** to your deployed worker URL.
+1. Go to https://dash.cloudflare.com → **Workers & Pages**
+2. Open the **noisy-breeze-a4b2** worker
+3. Click **Edit code**
+4. Delete everything and paste in the contents of `worker.js`
+5. Click **Deploy**
 
 ---
 
-## API reference
+## Step 2 — Add the 10 secrets
 
-### `POST /api/chat`
+Worker → **Settings** → **Variables & Secrets** → **Add secret**
 
-**Request:**
-```json
-{
-  "modelId": "deepseek-v3",
-  "messages": [
-    { "role": "user", "content": "Hello!" }
-  ]
-}
-```
-
-**Success response `200`:**
-```json
-{ "reply": "Hi there! How can I help?" }
-```
-
-**Error response:**
-```json
-{ "error": "Description of what went wrong" }
-```
-
-### `GET /health`
-
-Returns `{ "status": "ok", "worker": "platypus-ai" }` — useful for uptime monitoring.
+| Secret name    | Value (paste full key including sk-or-v1-) |
+|----------------|-------------------------------------------|
+| OPENAI_KEY_1   | gpt-oss-20b key 1                         |
+| OPENAI_KEY_2   | gpt-oss-20b key 2                         |
+| OPENAI_KEY_3   | gpt-oss-20b key 3                         |
+| DEEPSEEK_KEY_1 | DeepSeek V3 key 1                         |
+| DEEPSEEK_KEY_2 | DeepSeek V3 key 2                         |
+| ZHIPU_KEY_1    | GLM-4.5 Air key 1                         |
+| ZHIPU_KEY_2    | GLM-4.5 Air key 2                         |
+| GROK_KEY_1     | Grok 4 key                                |
+| GEMINI_KEY_1   | Gemini 2.0 Flash key                      |
+| QWEN_KEY_1     | Qwen Code 3 key                           |
 
 ---
 
-## Supported model IDs
+## Step 3 — Patch script.js
 
-| `modelId` | Model | Provider |
-|-----------|-------|----------|
-| `gpt-oss-20b` | GPT-4o mini | OpenAI |
-| `deepseek-v3` | DeepSeek V3 | DeepSeek |
-| `glm-4-5-air` | GLM-4.5 Air | Zhipu AI |
-| `grok-4` | Grok 4 | xAI |
-| `gemini-flash` | Gemini 2.0 Flash | Google |
-| `qwen-code-3` | Qwen Code 3 | Alibaba |
+Open your `script.js` and make 3 changes:
+
+**A) Delete keyPool from every model** — remove lines like:
+```js
+keyPool: [
+  'sk-or-v1-...',
+  'sk-or-v1-...',
+],
+```
+
+**B) Delete the getNextKey function** — remove:
+```js
+function getNextKey(model) { ... }
+```
+
+**C) Replace sendMessageToAI** with the version in `script.patch.js`
 
 ---
 
-## Security notes
+## Test it
 
-- API keys are stored as **Worker secrets** — encrypted at rest, never in code.
-- The worker strips all fields from messages except `role` and `content`.
-- Add an `Origin` allowlist in `corsHeaders()` once your domain is finalised.
+Visit this URL in your browser — should return `{"status":"ok","worker":"platypus-ai"}`:
+https://noisy-breeze-a4b2.detlaffcameron.workers.dev/health

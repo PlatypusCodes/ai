@@ -1,21 +1,3 @@
-name            = "platypus-ai"
-main            = "worker.js"
+name               = "noisy-breeze-a4b2"
+main               = "worker.js"
 compatibility_date = "2024-09-23"
-
-# ── Optional: restrict to your custom domain ──────────────────
-# [[routes]]
-# pattern = "platypus-ai.app/api/*"
-# zone_name = "platypus-ai.app"
-
-# ── Secrets (set via CLI, never commit values here) ───────────
-# Run these before deploying:
-#
-#   wrangler secret put OPENROUTER_KEY_OPENAI
-#   wrangler secret put OPENROUTER_KEY_DEEPSEEK
-#   wrangler secret put OPENROUTER_KEY_ZHIPU
-#   wrangler secret put OPENROUTER_KEY_XAI
-#   wrangler secret put OPENROUTER_KEY_GOOGLE
-#   wrangler secret put OPENROUTER_KEY_ALIBABA
-#
-# Or a single key used as fallback for all providers:
-#   wrangler secret put OPENROUTER_KEY_DEFAULT

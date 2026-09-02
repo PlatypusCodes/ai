@@ -1,26 +1,15 @@
 /**
- * PATCHED sendMessageToAI — replace the original in script.js
+ * Platypus AI — Frontend patch
  *
- * All API keys are removed from the frontend.
- * Calls the Cloudflare Worker proxy at /api/chat instead.
- *
- * Set WORKER_BASE_URL to your deployed worker URL, e.g.:
- *   https://platypus-ai.<your-subdomain>.workers.dev
- * or your custom domain if you've configured one.
+ * 1. In script.js, DELETE the entire keyPool from every model in MODELS array
+ * 2. DELETE the getNextKey() function
+ * 3. REPLACE the sendMessageToAI() function with the one below
  */
 
-// ── 1. Remove keyPool from every model definition ─────────────
-// In the MODELS array, delete every `keyPool: [...]` entry.
-// The worker handles keys — the frontend should have none.
-
-// ── 2. Remove the getNextKey function entirely ─────────────────
-
-// ── 3. Replace sendMessageToAI with this ──────────────────────
-
-const WORKER_BASE_URL = 'https://platypus-ai.<YOUR-SUBDOMAIN>.workers.dev';
+const WORKER_URL = 'https://noisy-breeze-a4b2.detlaffcameron.workers.dev';
 
 async function sendMessageToAI(messages, model) {
-  const res = await fetch(`${WORKER_BASE_URL}/api/chat`, {
+  const res = await fetch(`${WORKER_URL}/api/chat`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
